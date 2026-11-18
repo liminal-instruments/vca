@@ -24,16 +24,24 @@ Schematic: [`hardware/blackmer_vca/blackmer_vca.pdf`](hardware/blackmer_vca/blac
 
 ## Simulated performance
 
-ngspice, vendor transistor and OPA1678 models, pairs at datasheet-limit mismatch, 1 kHz, after trim:
+ngspice, vendor transistor and OPA1678 models, pairs at datasheet-limit mismatch, 1 kHz, after trim.
+The other columns are manufacturers' datasheet figures for comparison, not simulations.
 
-| Gain | Input | THD |
-|---|---|---|
-| -30 dB | 3.16 Vrms | 0.0015 % |
-| -15 dB | 3.16 Vrms | 0.0024 % |
-| 0 dB | 1 Vrms | 0.0027 % |
-| 0 dB | 3.16 Vrms | 0.0085 % |
-| +15 dB | 0.56 Vrms | 0.010 % |
-| +30 dB | 0.1 Vrms | 0.011 % |
+| Gain | Input | This design (simulated) | THAT 2181 A / B / C (typ) | THAT 2181 A / B / C (max) | CoolAudio V2181 |
+|---|---|---|---|---|---|
+| -30 dB | 3.16 Vrms | 0.0015 % | - | - | - |
+| -15 dB | 3.16 Vrms | 0.0024 % | 0.018 / 0.025 / 0.035 % | 0.025 / 0.035 / 0.07 % | - |
+| 0 dB | 1 Vrms | 0.0027 % | 0.0025 / 0.004 / 0.005 % | 0.005 / 0.008 / 0.02 % | 0.008 % |
+| 0 dB | 3.16 Vrms | 0.0085 % | 0.004 / 0.006 / 0.015 % | 0.008 / 0.010 / - % | - |
+| +15 dB | 0.56 Vrms | 0.010 % | 0.018 / 0.025 / 0.035 % | 0.025 / 0.035 / 0.07 % | 0.035 % |
+| +30 dB | 0.1 Vrms | 0.011 % | - | - | - |
+
+- THAT 2181 figures are from the 2181-series datasheet (document 600030 rev 03), at 1 kHz with the
+  symmetry trimmed at 1 V, 0 dB. They are measured silicon at 25 C, so they are a far stronger claim
+  than the simulation in the first column.
+- The CoolAudio V2181 datasheet gives only two headline figures ("0.008 % @ 0 dB gain, 0.035 % @
+  15 dB gain") without stating input level or grade; they are placed on the nearest rows.
+- Noise has not been simulated yet, so no noise comparison is given.
 
 Untrimmed, the same worst-case parts give 0.04-0.18 %. Known limits and open work:
 
