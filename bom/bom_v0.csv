@@ -1,0 +1,13 @@
+ref,part,description,qty,unit_gbp_at_100,line_gbp,price_basis
+"Q1,Q4,Q6",BCM847DS,"matched NPN pair SOT-457 (log/antilog, upper correction, bias)",3,0.150,0.450,DigiKey UK quote
+"Q2,Q3,Q5",BCM857DS,"matched PNP pair SOT-457 (log/antilog, lower correction, bias)",3,0.179,0.537,DigiKey UK quote
+Q7,BC857B,PNP SOT-23 (bias shunt),1,0.020,0.020,estimate
+U1,OPA1678IDR,dual audio op-amp (input amp + I-V),1,0.350,0.350,DigiKey quote (USD 0.445)
+"RV1,RV2,RV3",Bourns TC33X-2-503E,"50k SMD trimmer (symmetry, slope symmetry, gain)",3,0.176,0.528,RS UK quote
+"R4,R5,R6,R7",1.8R 1% 0603,correction resistors,4,0.010,0.040,estimate
+"R1,R2,R3,R8,R9,R10,R11,R12,R13,R14,R15,R16",1% 0603,"20k,20k,1k,27k,30k,6.8k,68k,27R,27R,5.6k,68k,10R",12,0.005,0.060,estimate
+"C1,C2",22p C0G 0603,compensation / I-V feedback,2,0.015,0.030,estimate
+"C3,C4",100n X7R 0603,supply decoupling,2,0.010,0.020,estimate
+TOTAL per channel,,,31,,2.035,
+"C5,C6",10u 25V X5R 1206,board bulk decoupling (prototype board; shared between channels),2,0.060,0.120,estimate
+"J1-J4",2.54 mm pin header,power / in / control / out (prototype board only),4,0.050,0.200,estimate

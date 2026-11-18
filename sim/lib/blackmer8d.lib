@@ -1,0 +1,42 @@
+* Buildable ("discrete") version of the 8-transistor cell: real op-amp input amplifier and a
+* real two-terminal bias generator. Core identical to BLACKMER8 (Hebert AES 4055 Fig. 4).
+*
+* Pins: in out ecp ecn sym vcc vee
+* Needs subcircuits QNCORE/QPCORE (device library) and OA_IN (op-amp wrapper: inp inn vcc vee out).
+*
+* Input amplifier: op-amp -> RDRV -> `top`. RDRV makes the drive behave like a transconductance
+*   (loop gain no longer scales with the signal-dependent core gm; Hebert section 2.3) and CC,
+*   from the op-amp output to its inverting input, closes the loop at high frequency.
+* Bias generator: floating shunt regulator between `top` and `bot`.
+*   V(top,bot) = Veb(D1) + Veb(D2) + Vbe(D3) + Vbe(QS)  -> 2 PNP + 2 NPN junctions, all near 20 uA,
+*   matching the 2 NPN + 2 PNP junctions around the core loop, so the core idles at about the
+*   string current and tracks temperature. QS/QP (Sziklai pair) shunt the excess of RSINK's current.
+*   RSINK sets the standing current (must exceed the peak signal current Iin+Iout).
+.subckt BLACKMER8D in out ecp ecn sym vcc vee RC=1.75 RDRV=1k CC=22p RSINK=6.8k RSTR=27k RPB=30k
++ AR2=1 AR4=1 AR6=1 AR8=1
+XOA 0 in vcc vee oa OA_IN
+CC1 oa in {CC}
+RDRV oa top {RDRV}
+* core
+XQ1 in  ecn e1 QNCORE
+XQ2 out sym e2 QNCORE AR={AR2}
+XQ3 in  ecp e3 QPCORE
+XQ4 out ecn e4 QPCORE AR={AR4}
+XQ5 c5 c6 e1 QPCORE
+XQ6 c6 c5 e2 QPCORE AR={AR6}
+RC1 c5 bot {RC}
+RC2 c6 bot {RC}
+XQ7 c7 c8 e3 QNCORE
+XQ8 c8 c7 e4 QNCORE AR={AR8}
+RC3 c7 top {RC}
+RC4 c8 top {RC}
+* bias generator
+XD1 d1 d1 top QPCORE
+XD2 d2 d2 d1  QPCORE
+XD3 d2 d2 x   QNCORE
+RSTR x bot {RSTR}
+XQS qb x bot QNCORE
+RPB top qb {RPB}
+XQP bot qb top QPCORE
+RSINK bot vee {RSINK}
+.ends BLACKMER8D

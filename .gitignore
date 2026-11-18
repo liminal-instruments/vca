@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# KiCad working files
+*-backups/
+*.kicad_prl
+*.lck
+~*.lck
+fp-info-cache
+_autosave-*
+*.bak
+
+# Simulator scratch
+*.raw
+*.log
+
+# Third-party copyrighted material: download it yourself (see docs/README.md, models/README.md)
+docs/papers/*
+docs/that-corp/
+docs/parts/*
+docs/context/
+models/*
+!models/README.md

@@ -1,0 +1,26 @@
+* Original 4-transistor Blackmer gain cell (US 3,714,462; Hebert AES 4055 Fig. 3)
+*
+*   in   : current input (virtual ground, held by internal input amplifier)
+*   out  : current output (must be held at virtual ground externally)
+*   ecp  : positive control port  (base of Q3 PNP-log)
+*   ecn  : negative control port  (bases of Q1 NPN-log and Q4 PNP-antilog)
+*   sym  : base of Q2 NPN-antilog. Tie to ecp through a small resistor and
+*          inject the symmetry trim there (Hebert Figs. 8/9).
+*
+*   Iout/Iin = exp((V(ecp)-V(ecn))/VT)   ->  ~3.0 mV/dB at 27 C
+*
+* IDLE = class-AB idle current per leg, CC/GBW = input amplifier compensation and speed.
+* ARN/ARP = area ratio of the antilog device to its log partner (mismatch injection).
+* The bias generator is an ideal floating source copying a replica diode stack at IDLE.
+.subckt BLACKMER4 in out ecp ecn sym IDLE=20u CC=22p GBW=10e6 ARN=1 ARP=1
+XOA 0 in en OPAMP_IDEAL GBW={GBW}
+CC1 en in {CC}
+XQ1 in  ecn en QNCORE
+XQ3 in  ecp ep QPCORE
+XQ2 out sym en QNCORE AR={ARN}
+XQ4 out ecn ep QPCORE AR={ARP}
+EB  ep en rp 0 1
+IR  0 rp {IDLE}
+XRP rm rm rp QPCORE
+XRN rm rm 0  QNCORE
+.ends BLACKMER4

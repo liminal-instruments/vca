@@ -1,0 +1,37 @@
+* 8-transistor complementary log-antilog cell (Hebert AES 4055 Fig. 4; the 2180/2181 core)
+*
+* Each leg has one NPN and one PNP junction in series, so the control law is
+*   Iout/Iin = exp((V(ecp)-V(ecn))/(2*VT))   ->  ~6.0 mV/dB at 27 C
+* and NPN/PNP differences (IS, ideality) are common to both signal polarities.
+* The lower/upper devices are cross-coupled so that RC1..RC4 cancel the
+* signal-dependent drop in the parasitic base/emitter resistances:
+*   ideal RCx = r'ex(primary) + r'ex(cross-coupled),  r'ex = RE + RB/(beta+1)
+*
+* Pins as BLACKMER4. Params: RC = all four correction resistors,
+* AR2/AR4/AR6/AR8 = area ratio of each output-side device to its input-side partner.
+.subckt BLACKMER8 in out ecp ecn sym IDLE=20u CC=22p GBW=10e6 RC=1m AR2=1 AR4=1 AR6=1 AR8=1
+XOA 0 in top OPAMP_IDEAL GBW={GBW}
+CC1 top in {CC}
+* primary log (input side) and antilog (output side) devices
+XQ1 in  ecn e1 QNCORE
+XQ2 out sym e2 QNCORE AR={AR2}
+XQ3 in  ecp e3 QPCORE
+XQ4 out ecn e4 QPCORE AR={AR4}
+* lower cross-coupled PNP pair
+XQ5 c5 c6 e1 QPCORE
+XQ6 c6 c5 e2 QPCORE AR={AR6}
+RC1 c5 bot {RC}
+RC2 c6 bot {RC}
+* upper cross-coupled NPN pair
+XQ7 c7 c8 e3 QNCORE
+XQ8 c8 c7 e4 QNCORE AR={AR8}
+RC3 c7 top {RC}
+RC4 c8 top {RC}
+* bias generator: ideal floating copy of a 2 NPN + 2 PNP replica stack at IDLE
+EB  top bot rp 0 1
+IR  0 rp {IDLE}
+XR1 r1 r1 rp QPCORE
+XR2 r1 r1 r2 QNCORE
+XR3 r3 r3 r2 QPCORE
+XR4 r3 r3 0  QNCORE
+.ends BLACKMER8

@@ -1,0 +1,14 @@
+* Idealised core transistors: perfectly complementary, no parasitic resistance,
+* no Early effect, no capacitance, flat beta.
+* Every core-device library defines subcircuits QNCORE and QPCORE (pins C B E)
+* with parameter AR = emitter-area ratio, used to inject Vbe mismatch:
+*   dVbe = VT*ln(AR)   (AR = 1.08 is about 2 mV)
+.subckt QNCORE c b e AR=1
+Q1 c b e QNI area={AR}
+.ends QNCORE
+.subckt QPCORE c b e AR=1
+Q1 c b e QPI area={AR}
+.ends QPCORE
+* device models
+.model QNI NPN(IS=1e-14 BF=300 BR=1)
+.model QPI PNP(IS=1e-14 BF=300 BR=1)

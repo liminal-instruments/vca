@@ -1,0 +1,9 @@
+* Idealised single-pole op-amp (portable: LTspice + ngspice)
+* A0 = DC open-loop gain, GBW = gain-bandwidth product (Hz)
+* No noise, no slew limit, no output swing limit, zero offset.
+.subckt OPAMP_IDEAL inp inn out A0=1e6 GBW=10e6
+G1 0 x inp inn 1
+R1 x 0 {A0}
+C1 x 0 {1/(6.283185307*GBW)}
+E1 out 0 x 0 1
+.ends OPAMP_IDEAL

@@ -1,0 +1,106 @@
+* Nexperia BCM847DS (NPN) / BCM857DS (PNP) matched-pair transistors.
+* Model parameters copied verbatim from the vendor files in models/ (ngspice needs the keyword form area=; to be confirmed in LTspice).
+* Vendor note: "Spicemodel does not include temperature dependency" (XTB=0); Vbe(T) still follows EG/XTI.
+* AR = emitter-area ratio for Vbe-mismatch injection, dVbe = NF*VT*ln(AR).
+.subckt QNCORE c b e AR=1
+Q1 c b e BCM847 area={AR}
+.ends QNCORE
+* The vendor PNP is a small subcircuit (quasi-saturation / reverse-mode helper parts).
+.subckt QPCORE c b e AR=1
+Q1 c   b e BCM857 area={0.9196*AR}
+Q2 c11 b e BCM857 area={0.08035*AR}
+D1 c b BCM857D area={AR}
+RQ1 c c11 {111.9/AR}
+.ends QPCORE
+* device models
+.model BCM847 NPN
++     IS = 1.822E-14 
++     NF = 0.9932 
++     ISE = 2.894E-16 
++     NE = 1.4 
++     BF = 324.4 
++     IKF = 0.109 
++     VAF = 82 
++     NR = 0.9931 
++     ISC = 9.982E-12 
++     NC = 1.763 
++     BR = 8.29 
++     IKR = 0.09 
++     VAR = 17.9 
++     RB = 10 
++     IRB = 5E-06 
++     RBM = 5 
++     RE = 0.649 
++     RC = 0.7014 
++     CJE = 1.244E-11 
++     VJE = 0.7579 
++     MJE = 0.3656 
++     TF = 4.908E-10 
++     XTF = 9.51 
++     VTF = 2.927 
++     ITF = 0.3131 
++     PTF = 0 
++     CJC = 3.347E-12 
++     VJC = 0.5463 
++     MJC = 0.391 
++     XCJC = 0.6193 
++     TR = 9E-08 
++     CJS = 0 
++     VJS = 0.75 
++     MJS = 0.333 
++     XTB = 0 
++     XTI = 3 
++     EG = 1.11 
++     FC = 0.979
+.model BCM857 PNP
++ IS = 1.619E-014 
++ NF = 0.9835 
++ ISE = 7.218E-015 
++ NE = 1.521 
++ BF = 266.9 
++ IKF = 0.08202 
++ VAF = 12.88 
++ NR = 0.977 
++ ISC = 3.672E-015 
++ NC = 1.122 
++ BR = 10.73 
++ IKR = 0.03072 
++ VAR = 24.01 
++ RB = 39.4 
++ IRB = 0.0001272 
++ RBM = 1.321 
++ RE = 0.3 
++ RC = 0.5566 
++ XTB = 0 
++ EG = 1.11 
++ XTI = 3 
++ CJE = 1.14E-011 
++ VJE = 0.7923 
++ MJE = 0.4031 
++ TF = 9E-010 
++ XTF = 20 
++ VTF = 5 
++ ITF = 0.52 
++ PTF = 0 
++ CJC = 5.839E-012 
++ VJC = 1 
++ MJC = 0.5758 
++ XCJC = 1 
++ TR = 1E-009 
++ CJS = 0 
++ VJS = 0.75 
++ MJS = 0.333 
++ FC = 0.79
+.model BCM857D D
++ IS = 5.409E-017 
++ N = 0.9852 
++ BV = 1000 
++ IBV = 0.001 
++ RS = 2.939 
++ CJO = 0 
++ VJ = 1 
++ M = 0.5 
++ FC = 0 
++ TT = 0 
++ EG = 1.11 
++ XTI = 3
