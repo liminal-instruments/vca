@@ -9,7 +9,7 @@ as a replacement for the THAT 2180/2181 after THAT Corporation's September 2026 
 
 - A modern Blackmer log/antilog gain cell from cheap, available parts (Nexperia BCM847DS / BCM857DS
   matched pairs and one dual op-amp), not an at-any-cost replica.
-- Parts cost comparable to a CoolAudio V2181: currently about **£2.04 per channel at 100-off**
+- Parts cost comparable to a CoolAudio V2181: currently about **£2.01 per module at 100-off**
   (see `bom/bom_v0.csv`; passives are estimates).
 - THD below 0.01 % after trimming. The circuit works untrimmed; calibration improves it.
 
@@ -17,10 +17,17 @@ as a replacement for the THAT 2180/2181 after THAT Corporation's September 2026 
 
 The 8-transistor gain cell described by Hebert (AES preprint 4055, Fig. 4): a log/antilog quad with
 two cross-coupled correction pairs, an op-amp input amplifier, a bias generator built from the same
-matched pairs, and an op-amp current-to-voltage output stage. Three trimmers set symmetry, slope
-symmetry and unity gain. Control law is about 5.9 mV/dB.
+matched pairs. Three trimmers set symmetry, slope symmetry and unity gain. Control law is about
+5.9 mV/dB.
 
-Schematic: [`hardware/blackmer_vca/blackmer_vca.pdf`](hardware/blackmer_vca/blackmer_vca.pdf)
+The hardware is a module with the THAT 2181's SIP-8 pinout and pin pitch: current in, current out,
+with the input resistor and current-to-voltage converter on the host board, as for a 2181. One
+difference: the module's op-amp needs the real negative rail, which a 2181 socket does not carry
+(pin 5 is a current-programming pin), so -15 V comes in on a separate pad.
+
+Schematic: [`hardware/blackmer_vca/blackmer_vca.pdf`](hardware/blackmer_vca/blackmer_vca.pdf).
+The PCB (`blackmer_vca.kicad_pcb`, 56 x 38 mm, two layers) has a script-generated first-pass routing
+that passes KiCad's design-rule check but has not been reviewed or optimised by hand.
 
 ## Simulated performance
 
@@ -82,6 +89,8 @@ Requires KiCad 9 with its standard symbol libraries.
 cd hardware
 python3 gen_schematic.py     # writes blackmer_vca/blackmer_vca.kicad_sch
 python3 check_netlist.py     # compares the schematic's netlist with the simulated circuit
+python3 gen_board.py         # starting-point PCB (overwrites the board - only before hand edits)
+python3 route_board.py       # first-pass routing and ground-pour cut-outs
 ```
 
 ## Disclaimer

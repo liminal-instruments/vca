@@ -309,9 +309,7 @@ s.wire(cb, (128, 44), (128, 56))
 s.wire(ca, (108, 44), (108, MID))
 s.wire(u1a["2"], (108, u1a["2"][1]))
 s.wire(u1a["3"], (112, u1a["3"][1]), (112, 62)); s.power("GND", (112, 62))
-ra, rb = s.r("R1", "20k", 96, MID, horiz=True)                    # Rin
-s.wire(rb, (XL, MID))
-s.wire(ra, (86, MID)); s.label("VIN", (86, MID))
+s.wire((96, MID), (XL, MID)); s.label("IN", (96, MID))            # host supplies the input resistor
 
 # ---- rails
 s.wire((134, TOP), (252, TOP)); s.label("TOP", (158, TOP))
@@ -337,19 +335,16 @@ s.wire((XQ, TOP), a); s.wire(b, qs["C"])
 s.wire((XQ, 70), qp["B"])
 s.wire((XP, TOP), qp["E"]); s.wire(qp["C"], (XP, BOT))
 a, b = s.r("R10", "6k8", 258, 127)                                # RSINK
-s.wire((258, BOT), a); s.power("-15V", b, rot=180)
+s.wire((258, BOT), a); s.wire(b, (258, 134)); s.label("V-", (258, 134), 270, "right bottom")
 
-# ---- output current-to-voltage converter
-u1b = s.place("Amplifier_Operational:OPA1678", "U1", "OPA1678", 284, 82, mirror="x", unit=2, fp=OPA_FP,
+# ---- output: a current, into the host's current-to-voltage converter (as with a 2181)
+s.wire((XR, MID), (272, MID)); s.label("OUT", (272, MID))
+
+# ---- unused half of the dual op-amp, parked as a grounded follower
+u1b = s.place("Amplifier_Operational:OPA1678", "U1", "OPA1678", 250, 190, mirror="x", unit=2, fp=OPA_FP,
               ref_at=(2.5, -5.5, "left"), val_at=(2.5, 5.5, "left"))
-assert u1b["6"] == (278, MID), u1b
-s.wire((XR, MID), u1b["6"])
-s.wire(u1b["5"], (275, u1b["5"][1]), (275, 88)); s.power("GND", (275, 88))
-ra, rb = s.r("R2", "20k", 284, 70, horiz=True)                    # Rf
-ca, cb = s.c("C2", "22p", 284, 60, horiz=True)                    # Cf
-s.wire(ca, (272, 60), (272, MID)); s.wire(ra, (272, 70))
-s.wire(cb, (296, 60), (296, 82)); s.wire(rb, (296, 70))
-s.wire(u1b["7"], (302, 82)); s.label("VOUT", (302, 82))
+s.wire(u1b["6"], (u1b["6"][0], 183), (258, 183), (258, 190), u1b["7"])
+s.wire(u1b["5"], (242, u1b["5"][1]), (242, 196)); s.power("GND", (242, 196))
 
 # ---- trim network
 YT = 162
@@ -394,28 +389,29 @@ c_, d = s.c("C4", "100n", 280, 177)
 s.wire(vp, (vp[0], 162)); s.wire(a, (280, 162), (vp[0], 162)); s.power("+15V", (vp[0], 162))
 s.wire(vn, (vn[0], 182)); s.wire(d, (280, 182), (vn[0], 182)); s.power("-15V", (vn[0], 182), rot=180)
 s.wire(b, c_); s.wire((280, 172), (273, 172)); s.power("GND", (273, 172))
+s.flag((286, 162)); s.flag((286, 182)); s.flag((276, 172))
 
-# ---- connectors
-HDR = "Connector_PinHeader_2.54mm:PinHeader_1x0%d_P2.54mm_Vertical"
-j1 = s.place("Connector_Generic:Conn_01x03", "J1", "POWER", 40, 166, mirror="y", fp=HDR % 3,
-             ref_at=(0, -6.5, "center"), val_at=(0, 6.5, "center"))
-p1, p2, p3 = j1["1"], j1["2"], j1["3"]
-s.wire(p1, (48, p1[1]), (48, 158), (72, 158)); s.power("+15V", (72, 158))
-s.wire(p2, (72, 166)); s.power("GND", (72, 166))
-s.wire(p3, (48, p3[1]), (48, 174), (72, 174)); s.power("-15V", (72, 174), rot=180)
-BULK = "Capacitor_SMD:C_1206_3216Metric"
-a, b = s.c("C5", "10u 25V", 56, 162, fp=BULK); s.wire((56, 158), a); s.wire(b, (56, 166))
-a, b = s.c("C6", "10u 25V", 56, 170, fp=BULK); s.wire((56, 166), a); s.wire(b, (56, 174))
-s.flag((66, 158)); s.flag((66, 166)); s.flag((66, 174))
-for i, (ref, val, net) in enumerate((("J2", "IN", "VIN"), ("J3", "CONTROL", "EC+"), ("J4", "OUT", "VOUT"))):
-    y = 188 + 12 * i
-    j = s.place("Connector_Generic:Conn_01x02", ref, val, 40, y, mirror="y", fp=HDR % 2,
-                ref_at=(-4, -1.3, "left"), val_at=(-4, 1.3, "left"))
-    s.wire(j["1"], (50, j["1"][1])); s.label(net, (50, j["1"][1]))
-    s.wire(j["2"], (54, j["2"][1]), (54, j["2"][1] + 2)); s.power("GND", (54, j["2"][1] + 2))
+# ---- module pins: same order and pitch as the THAT 2181 SIP-8
+j1 = s.place("Connector_Generic:Conn_01x08", "J1", "2181 SIP-8", 40, 176, mirror="y",
+             fp="Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical",
+             ref_at=(0, -12.5, "center"), val_at=(0, 12.8, "center"))
+for num, net in (("1", "IN"), ("2", "EC+"), ("3", "EC-"), ("4", "SYM"), ("5", "V-"), ("8", "OUT")):
+    s.wire(j1[num], (50, j1[num][1])); s.label(net, (50, j1[num][1]))
+s.wire(j1["6"], (60, j1["6"][1])); s.power("GND", (60, j1["6"][1]))
+s.wire(j1["7"], (66, j1["7"][1])); s.power("+15V", (66, j1["7"][1]))
+# the op-amp and trimmers need the real negative rail, which a 2181 socket does not carry
+j2 = s.place("Connector_Generic:Conn_01x01", "J2", "VEE (-15V)", 40, 200, mirror="y",
+             fp="Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical",
+             ref_at=(0, -3.2, "center"), val_at=(0, 3.4, "center"))
+s.wire(j2["1"], (54, 200), (54, 202)); s.power("-15V", (54, 202), rot=180)
+jp = s.place("Jumper:SolderJumper_2_Open", "JP1", "V- = VEE", 100, 200,
+             fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+             ref_at=(0, -3.4, "center"), val_at=(0, 3.4, "center"))
+s.wire(jp["1"], (92, 200)); s.label("V-", (92, 200), 0, "left bottom")
+s.wire(jp["2"], (108, 200), (108, 202)); s.power("-15V", (108, 202), rot=180)
 
 # ---- test points
-for i, net in enumerate(("VOUT", "TOP", "BOT", "EC+", "SYM", "GND")):
+for i, net in enumerate(("TOP", "BOT", "EC+", "SYM", "GND")):
     x = 190 + 9 * i
     s.place("Connector:TestPoint", f"TP{i + 1}", net, x, 196, fp="TestPoint:TestPoint_Pad_D1.5mm",
             ref_at=(0, -5.2, "center"), show_val=False)
@@ -430,13 +426,13 @@ s.text("Discrete Blackmer VCA - 8-transistor log/antilog gain cell (after Hebert
        28, 16, size=2.0, bold=True)
 s.text("Gain = 0 dB at EC+ = 0 V;  control law about +5.9 mV/dB at EC+ (positive voltage increases gain), "
        "drive EC+ from a low-impedance source.\n"
-       "Signal path is non-inverting:  VIN -> R1 (20k) -> gain cell -> U1B with R2 (20k).\n"
+       "Pin-compatible with the THAT 2181 (SIP-8): current in at IN (virtual earth), current out at OUT; "
+       "the host supplies the input resistor and I-V converter.\n"
        "Core idle current about 20 uA, set by the bias generator;  R10 sets the standing current (about 2 mA).",
        28, 21)
 s.text("INPUT AMPLIFIER", 104, 34, bold=True)
 s.text("GAIN CELL", 168, 34, bold=True)
 s.text("BIAS GENERATOR", 222, 34, bold=True)
-s.text("OUTPUT I-V CONVERTER", 272, 52, bold=True)
 s.text("Matched pairs (one SOT-457 package each)  /  name in the SPICE model\n"
        "Q1A, Q1B  BCM847DS  log / antilog NPN       Q1, Q2\n"
        "Q2A, Q2B  BCM857DS  log / antilog PNP       Q3, Q4\n"
@@ -446,7 +442,7 @@ s.text("Matched pairs (one SOT-457 package each)  /  name in the SPICE model\n"
        "Q6A, Q6B  BCM847DS  bias string / shunt     D3, QS\n"
        "Q7       BC857B    bias shunt              QP",
        28, 34)
-s.text("Trim procedure (1 kHz, measure THD at VOUT)\n"
+s.text("Trim procedure (1 kHz, measure THD at the host output)\n"
        "1. RV1: 0 dB gain, 1 Vrms in - null distortion.\n"
        "2. RV2: -15 dB gain, 3 Vrms in - null distortion.\n"
        "3. Repeat 1 and 2 once.\n"
@@ -454,6 +450,13 @@ s.text("Trim procedure (1 kHz, measure THD at VOUT)\n"
        "R3 / C1 set input-amplifier stability and HF distortion.\n"
        "R4-R7 (1R8) cancel transistor bulk resistance.",
        28, 62)
+s.text("Using it in a 2181 socket\n"
+       "V- (pin 5): the host normally has about 5k1 from this pin to -15 V. Then fit R10 = 0R,\n"
+       "  leave JP1 open and bring -15 V to J2 on a wire.\n"
+       "  If the host ties pin 5 straight to -15 V instead: fit R10 = 6k8 and close JP1.\n"
+       "EC- (pin 3): if the host drives EC-, omit R16, R15 and RV3 (the host sets gain).\n"
+       "SYM (pin 4): a host symmetry trim adds to RV1; it is not needed.",
+       28, 206)
 
-s.write("Discrete Blackmer VCA - single-channel prototype", "0.1")
+s.write("Discrete Blackmer VCA - 2181-pinout module", "0.2")
 print("wrote", OUT / f"{PROJECT}.kicad_sch")
